@@ -1,38 +1,13 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useUserStore, usePostsStore, useOnlineUsersStore } from '../store'
-import { PostModel, TalkModel } from '../models'
+import { useUserStore } from '../store'
 
-const postsStore = usePostsStore()
 const userStore = useUserStore()
-const onlineUserStore = useOnlineUsersStore()
+const props = defineProps<{ socket: WebSocket }>()
 
-const BASE_URL = 'ws://localhost:8081/'
-const socket = ref<WebSocket>(new WebSocket(BASE_URL))
+props.socket.send(
+  JSON.stringify({ type: 'login', data: { nickname: userStore.userNickname } }),
+)
 
-socket.value.addEventListener('open', () => {
-  socket.value.send(
-    JSON.stringify({ type: 'login', data: { nickname: userStore.userNickname } }),
-  )
-})
-
-socket.value.onmessage = (event) => {
-  const response = JSON.parse(event.data)
-
-  if (response.type === 'post') {
-    const posts: PostModel[] = response.data
-    postsStore.setPosts(posts)
-  }
-
-  if (response.type === 'talks') {
-    const talks: TalkModel[] = response.data
-    userStore.setTalks(talks)
-  }
-
-  if (response.type === 'online') {
-    onlineUserStore.setOnline(response.data)
-  }
-}
 </script>
 
 <template>

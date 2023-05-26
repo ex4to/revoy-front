@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useLogIn, useRegistation } from '../services'
-import { useUserStore } from '../store'
+import { useUserStore, useErrorStore } from '../store'
 import { watch } from 'vue'
 import { router } from '../router'
+
+const props = defineProps<{ socket: WebSocket }>()
 
 const selectedTab = ref('in')
 const loginNickname = ref('')
@@ -13,40 +15,44 @@ const regNickname = ref('')
 const regPass = ref('')
 const regPassConf = ref('')
 
-const isError = ref(false)
-const errorMessage = ref('')
-
 const userStore = useUserStore()
+const errorStore = useErrorStore()
 
-const handleConnection = async () => {
-  isError.value = false
-  errorMessage.value = ''
+const handleConnection = () => {
+  errorStore.isError = false
+  errorStore.errorMessage = ''
 
   if (selectedTab.value === 'in') {
-    const res = await useLogIn(loginNickname.value, loginPass.value)
-    if (res.err) {
-      isError.value = res.err
-      errorMessage.value = res.message
-    } else if (res.data) {
-      userStore.setLogIn(true, res.data.nickname)
-      router.replace('/')
-    }
-  } else {
-    const res = await useRegistation(regNickname.value, regPass.value, regPassConf.value)
+    const res = useLogIn(props.socket, loginNickname.value, loginPass.value)
 
     if (res.err) {
-      isError.value = res.err
-      errorMessage.value = res.message
-    } else if (res.data) {
-      userStore.setLogIn(true, res.data.nickname)
-      router.replace('/')
+      errorStore.isError = res.err
+      errorStore.errorMessage = res.message
+    }
+  } else {
+    const res = useRegistation(
+      props.socket,
+      regNickname.value,
+      regPass.value,
+      regPassConf.value,
+    )
+
+    if (res.err) {
+      errorStore.isError = res.err
+      errorStore.errorMessage = res.message
     }
   }
 }
 
 watch(selectedTab, () => {
-  isError.value = false
-  errorMessage.value = ''
+  errorStore.isError = false
+  errorStore.errorMessage = ''
+})
+
+userStore.$subscribe((_, state) => {
+  if (state.isLogIn) {
+    router.replace('/')
+  }
 })
 </script>
 
@@ -74,9 +80,9 @@ watch(selectedTab, () => {
             Регистрация
           </button>
         </nav>
-        <div v-if="isError" class="p-1">
+        <div v-if="errorStore.isError" class="p-1">
           <p class="bg-red-400 text-white p-2 text-center">
-            {{ errorMessage }}
+            {{ errorStore.errorMessage }}
           </p>
         </div>
         <div v-if="selectedTab === 'in'" class="flex flex-col gap-2 p-2">

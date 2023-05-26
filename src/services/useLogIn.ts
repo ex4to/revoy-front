@@ -1,18 +1,24 @@
 import { ResponseModel } from '../models'
 
-export const useLogIn = async (
+export const useLogIn = (
+  socket: WebSocket,
   nickname: string,
   pass: string,
-): Promise<ResponseModel> => {
-  let response
+): ResponseModel => {
+  const response = {
+    err: false,
+    message: 'Успешный вход'
+  }
 
   if (nickname.length < 4) {
-    response = { err: true, message: 'Короткий логин' }
+    response.err = true
+    response.message= 'Короткий логин'
     return response
   }
-  
+
   if (pass.length < 4) {
-    response = { err: true, message: 'Короткий пароль' }
+    response.err = true
+    response.message= 'Короткий пароль'
     return response
   }
 
@@ -21,24 +27,7 @@ export const useLogIn = async (
     pass,
   }
 
-  const headers: HeadersInit = [
-    ['Access-Control-Allow-Origin', '*'],
-    ['Accept', 'application/json'],
-    ['Content-Type', 'application/json'],
-  ]
-
-  try {
-    const raw = await fetch('http://localhost:8080/login', {
-      headers,
-      method: 'POST',
-      body: JSON.stringify(data),
-    })
-
-    response = await raw.json()
-  } catch (err) {
-    response = { err: true, message: 'Ошибка сервера' }
-    console.error(err)
-  }
-
+  socket.send(JSON.stringify({ type: 'auth', data }))
   return response
+
 }

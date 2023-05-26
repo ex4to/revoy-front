@@ -1,24 +1,31 @@
 import { ResponseModel } from '../models'
 
-export const useRegistation = async (
+export const useRegistation = (
+  socket: WebSocket,
   nickname: string,
   pass: string,
   passCheck: string,
-): Promise<ResponseModel> => {
-  let response
+): ResponseModel => {
+  const response = {
+    err: false,
+    message: 'Успешный вход',
+  }
 
   if (nickname.length < 4) {
-    response = { err: true, message: 'Короткий логин' }
+    response.err = true
+    response.message= 'Короткий логин'
     return response
   }
 
   if (pass.length < 4) {
-    response = { err: true, message: 'Короткий пароль' }
+    response.err = true
+    response.message= 'Короткий пароль'
     return response
   }
 
   if (pass !== passCheck) {
-    response = { err: true, message: 'Пароли не совпадают' }
+    response.err = true
+    response.message= 'Пароли не совпадают'
     return response
   }
 
@@ -27,24 +34,6 @@ export const useRegistation = async (
     pass,
   }
 
-  const headers: HeadersInit = [
-    ['Access-Control-Allow-Origin', '*'],
-    ['Accept', 'application/json'],
-    ['Content-Type', 'application/json'],
-  ]
-
-  try {
-    const raw = await fetch('http://localhost:8080/register', {
-      headers,
-      method: 'POST',
-      body: JSON.stringify(data),
-    })
-
-    response = await raw.json()
-  } catch (err) {
-    response = { err: true, message: 'Ошибка сервера' }
-    console.error(err)
-  }
-
+  socket.send(JSON.stringify({ type: 'registration', data }))
   return response
 }
