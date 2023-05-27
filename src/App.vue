@@ -8,7 +8,7 @@ const onlineUserStore = useOnlineUsersStore()
 const postsStore = usePostsStore()
 const errorStore = useErrorStore()
 
-const BASE_URL = 'ws://localhost:8020/'
+const BASE_URL = 'ws://revoy.voxvio.ru/ws'
 const socket = ref<WebSocket>(new WebSocket(BASE_URL))
 
 socket.value.onmessage = (event) => {
