@@ -11,14 +11,19 @@ const userStore = useUserStore()
 const text = ref('')
 
 const sendPost = () => {
-  const post = { nickname: userStore.userNickname, text: text.value, comments: [] }
-  usePosts(props.socket, post)
-  text.value = ''
+  if (text.value.length > 0 && text.value.length < 100) {
+    const post = { nickname: userStore.userNickname, text: text.value, comments: [] }
+    usePosts(props.socket, post)
+    text.value = ''
+  }
 }
 </script>
 
 <template>
   <main class="max-w-lg mx-auto">
+    <ul class="flex flex-col gap-4 p-2 h-[85vh] max-h-[85vh] overflow-scroll scroll-hide">
+      <AppPost :posts="postsStore.posts" />
+    </ul>
     <div class="flex gap-2 justify-between py-2 px-4">
       <input
         placeholder="Введите сообщение"
@@ -32,8 +37,5 @@ const sendPost = () => {
         Пост
       </button>
     </div>
-    <ul class="flex flex-col-reverse gap-4 p-2">
-      <AppPost :posts="postsStore.posts" />
-    </ul>
   </main>
 </template>

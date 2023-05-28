@@ -21,13 +21,13 @@ const handleChat = (from: string, to: string) => {
     <div v-if="nickname !== $route.params.nickname">
       <button
         @click="handleChat(nickname, $route.params.nickname as string)"
-        class="bg-gray-200 text-cyan-700 border-2 border-cyan-600 px-2 font-bold shadow rounded"
+        class="bg-gray-200 text-cyan-700 border-2 border-cyan-600 px-2 font-bold shadow rounded w-full"
       >
         Написать
       </button>
     </div>
     <section>
-      <ul class="flex flex-col gap-4">
+      <ul class="flex flex-col gap-4 h-[70vh] max-h-[70vh] overflow-scroll scroll-hide">
         <AppPost
           :posts="postsStore.posts.filter((e) => e.nickname === $route.params.nickname)"
         />
