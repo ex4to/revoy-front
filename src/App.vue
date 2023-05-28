@@ -8,8 +8,7 @@ const onlineUserStore = useOnlineUsersStore()
 const postsStore = usePostsStore()
 const errorStore = useErrorStore()
 
-// const BASE_URL = `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/ws`
-const BASE_URL = 'ws://localhost:8080/'
+const BASE_URL = `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/ws`
 const socket = ref<WebSocket>(new WebSocket(BASE_URL))
 socket.value.onmessage = (event) => {
   const response = JSON.parse(event.data)
